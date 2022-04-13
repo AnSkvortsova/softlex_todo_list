@@ -11,7 +11,7 @@ const getTasks = (req, res) => {
 };
 
 const addTask = (req, res) => {
-  tasks.push(req.body);
+  tasks.unshift(req.body);
   res.status(200).send({
     status: 'ok',
     message: req.body

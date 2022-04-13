@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const routerTasks = require('./routes/tasks');
 const routerAdmins = require('./routes/admins')
@@ -10,6 +11,7 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use('/tasks', routerTasks);
 app.use('/', routerAdmins);

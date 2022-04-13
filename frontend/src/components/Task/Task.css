@@ -1,0 +1,21 @@
+.task {
+  list-style-type: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.task__text {
+  font-size: 14px;
+  line-height: 16px;
+  margin: 30px 0 0;
+}
+
+.task__info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task__data {
+  font-size: 11px;
+  line-height: 13px;
+  color: rgba(0, 0 , 0, 0.5);
+}

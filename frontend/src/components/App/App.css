@@ -1,0 +1,24 @@
+.app {
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  width: 740px;
+  margin: 0 auto;
+}
+
+.app__header {
+  font-size: 26px;
+  line-height: 28px;
+  text-align: center;
+  margin: 50px 0;
+}
+
+@media (max-width: 1180px) {
+  .app {
+    width: 540px
+  }
+}
+
+@media (max-width: 740px) {
+  .app {
+    width: 300px
+  }
+}
