@@ -3,7 +3,7 @@ import { Task } from '../Task/Task';
 export function TasksList(props) {
   return(
     <ul className='tasksList'>
-      {props.allTasks.map((task) => (
+      {props.tasks.map((task) => (
         <Task 
         key = {task.id}
         username = {task.username}

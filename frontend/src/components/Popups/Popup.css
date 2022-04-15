@@ -26,12 +26,9 @@
   height: 30px;
   font-size: 11px;
   line-height: 13px;
-  padding: 1px;
+  padding: 1px 1px 1px 10px;
   border: 1px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-}
-.popup__input::placeholder {
-  padding: 10px;
 }
 
 .popup__textarea {
@@ -40,12 +37,9 @@
   height: 200px;
   font-size: 11px;
   line-height: 13px;
-  padding: 1px;
+  padding: 5px 1px 1px 10px;
   border: 1px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-}
-.popup__textarea::placeholder {
-  padding: 10px;
 }
 
 .popup__btn {
