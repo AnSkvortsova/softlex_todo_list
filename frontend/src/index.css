@@ -2,6 +2,7 @@
 @import url(./vendor/fonts/fonts.css);
 
 @import url(./components/App/App.css);
+@import url(./components/Buttons/Buttons.css);
 @import url(./components/TasksList/TasksList.css);
 @import url(./components/Task/Task.css);
 @import url(./components/Pagination/Pagination.css);

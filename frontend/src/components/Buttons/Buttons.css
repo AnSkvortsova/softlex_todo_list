@@ -1,0 +1,16 @@
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.buttons__btn {
+  width: 180px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #000000;
+}
+.buttons__btn:hover {
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.3s;
+}

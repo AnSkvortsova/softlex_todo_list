@@ -1,8 +1,10 @@
 import { React, useState, useEffect } from 'react';
+import { Buttons } from '../Buttons/Buttons';
 import { TasksList } from '../TasksList/TasksList';
 import { Pagination } from '../Pagination/Pagination';
 import { AddTaskPopup } from '../Popups/AddTaskPopup';
 import { LoginPopup } from '../Popups/LoginPopup';
+import { SortTaskPopup } from '../Popups/SortTaskPopup';
 
 import { PAGE_SIZE } from '../../utils/constance';
 
@@ -10,10 +12,19 @@ import * as api from '../../utils/api';
 
 function App() {
   const [isTasksLoaded, setIsTasksLoadedState] = useState(false);
+  const [isSorted, setIsSortedState] = useState(false);
+
+  const [isSortTaskPopupOpend, setIsSortTaskPopupOpendState] = useState(false);
   const [isAddTaskPopupOpend, setIsAddTaskPopupOpendState] = useState(false);
   const [isLoginPopupOpend, setIsLoginPopupOpendState] = useState(false);
+  
   const [allTasks, setAllTasksState] = useState([]);
   const [tasksOnPage, setTasksOnPageState] = useState([]);
+  const [sortedTasks, setSortedTasksState] = useState([]);
+
+  function handleSortTaskBtn() {
+    setIsSortTaskPopupOpendState(true);
+  };
 
   function handleAddTaskBtn() {
     setIsAddTaskPopupOpendState(true);
@@ -24,6 +35,7 @@ function App() {
   };
 
   function closePopup() {
+    setIsSortTaskPopupOpendState(false);
     setIsAddTaskPopupOpendState(false);
     setIsLoginPopupOpendState(false);
   };
@@ -61,7 +73,7 @@ function App() {
     .then((res) => {
       checkIsTasksLoaded(allTasks)
       if(!isTasksLoaded) {
-        setAllTasksState(res.message.tasks)
+        setAllTasksState(res.message.tasks);
       }
     })
     .catch((err) => {
@@ -71,6 +83,10 @@ function App() {
 
   //количество задач на странице
   function handlePaginationBtn(pageNumber) {
+    if (sortedTasks.length !== 0) {
+      const copySortedTasks = sortedTasks.slice();
+      return setTasksOnPageState(copySortedTasks.splice(pageNumber * PAGE_SIZE - PAGE_SIZE, PAGE_SIZE));
+    }
     const copyAllTasks = allTasks.slice();
     setTasksOnPageState(copyAllTasks.splice(pageNumber * PAGE_SIZE - PAGE_SIZE, PAGE_SIZE));
   };
@@ -86,25 +102,55 @@ function App() {
     .catch((err) => console.log(err))
   };
 
- console.log(tasksOnPage)
- console.log(allTasks)
+  //сортировать задачи
+  function sortTasks(username, email, status) {
+    setSortedTasksState(allTasks.filter(item => item.username === username || item.email === email || +item.status === +status));
+    setIsSortedState(true);
+  };
+
+  function resetSorting() {
+    setSortedTasksState([]);
+    setIsSortedState(false);
+  };
+
+  useEffect(() => {
+    if (sortedTasks.length === 0) {
+      const copyAllTasks = allTasks.slice();
+      return setTasksOnPageState(copyAllTasks.splice(0, PAGE_SIZE));
+    }
+    const copySortedTasks = sortedTasks.slice();
+    setTasksOnPageState(copySortedTasks.splice(0, PAGE_SIZE));
+  }, [allTasks, sortTasks.length, sortedTasks]);
+
   return (
     <div className="app">
       <header className="app__header">To Do List</header>
-      <button className='button' onClick={handleAddTaskBtn} type='button' aria-label='Добавить задачу'>Добавить задачу</button>
-      <button className='buttom' onClick={handleLoginBtn} type='button' aria-label='Вход'>Вход</button>
+      <Buttons 
+      onAddTaskBtn={handleAddTaskBtn}
+      onLoginBtn={handleLoginBtn}
+      onSortTaskBtn={handleSortTaskBtn} />
+
       <TasksList 
       tasks = {tasksOnPage} />
+
       <Pagination
-      totalTaskCount = {allTasks.length}
+      totalTaskCount = {isSorted ? sortedTasks.length : allTasks.length}
       onPaginationBtn = {handlePaginationBtn} />
 
       <AddTaskPopup
       isPopupOpend = {isAddTaskPopupOpend}
       addNewTask = {addNewTask}
       closePopup = {closePopup} />
+
       <LoginPopup
-      isPopupOpend = {isLoginPopupOpend} />
+      isPopupOpend = {isLoginPopupOpend}
+      closePopup = {closePopup} />
+
+      <SortTaskPopup
+      isPopupOpend = {isSortTaskPopupOpend}
+      sortTasks = {sortTasks}
+      resetSorting = {resetSorting}
+      closePopup = {closePopup} />
     </div>
   );
 }

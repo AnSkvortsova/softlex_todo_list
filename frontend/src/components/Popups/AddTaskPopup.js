@@ -4,6 +4,7 @@ export function AddTaskPopup(props) {
   const [username, setUsernameState] = useState('');
   const [email, setEmailState] = useState('');
   const [text, setTextState] = useState('');
+  const [isError, setIsErrorState] = useState(false);
 
   function handleNameInputChange(evt) {
     setUsernameState(evt.target.value);
@@ -19,6 +20,10 @@ export function AddTaskPopup(props) {
 
   function handleSubmitBtn(evt) {
     evt.preventDefault();
+    if (username === '' || email === '' || text === '') {
+      return setIsErrorState(true);
+    };
+    
     props.addNewTask({
       username,
       email,
@@ -27,6 +32,7 @@ export function AddTaskPopup(props) {
     setUsernameState('');
     setEmailState('');
     setTextState('');
+    setIsErrorState(false);
     props.closePopup();
   };
 
@@ -34,31 +40,32 @@ export function AddTaskPopup(props) {
     <form className={`popup ${props.isPopupOpend ? 'popup_opend' : ''}`}>
       <input 
         className='popup__input' 
-        id='name' 
         type='text' 
         value = {username}
         onChange = {handleNameInputChange} 
-        placeholder='name'/>
+        placeholder='name'
+        required />
 
       <input 
         className='popup__input' 
-        id='email' 
         type='email' 
         value = {email}
         onChange = {handleEmailInputChange}
-        placeholder='email'/>
+        placeholder='email'
+        required />
 
       <textarea 
         className='popup__textarea' 
         rows='10' 
         cols='45' 
-        id='text' 
         type='text' 
         value = {text}
         onChange = {handleTextInputChange}
-        placeholder='text'/>
+        placeholder='text'
+        required />
 
       <button className='popup__btn' type='submit' onClick={handleSubmitBtn} aria-label='Отправить'>Отправить</button>
+      <span className={`popup__err ${isError ? 'popup__err_active' : ''}`}>Все поля должны быть заполнены</span>
     </form>
   )
 };
