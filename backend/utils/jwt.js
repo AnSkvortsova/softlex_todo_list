@@ -12,8 +12,6 @@ const getToken = (id) => jwt.sign(
 const isAuthorized = (token) => {
   return jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) return false;
-    console.log(decoded)
-
     return admin = admins.find(item => item.id === decoded.id);
   });
 };

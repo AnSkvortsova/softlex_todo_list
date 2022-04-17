@@ -31,3 +31,40 @@ export const addTask = (data) => {
     })
   }).then((response) => checkResult(response));
 };
+
+export const login = (username, password) => {
+  return fetch(`${BASE_URL}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({username, password}),
+  }).then((response) => checkResult(response));
+};
+
+export const auth = (token) => {
+  return fetch(`${BASE_URL}/auth`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({token}),
+  }).then((response) => checkResult(response));
+};
+
+export const editTask = (data, token) => {
+  return fetch(`${BASE_URL}/tasks/edit/${data.id}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': token,
+    },
+    body: JSON.stringify({
+      id: data.id, 
+      username: data.username,
+      email: data.email,
+      text: data.text, 
+      status: data.status
+    }),
+  }).then((response) => checkResult(response));
+};

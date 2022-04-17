@@ -1,15 +1,10 @@
-const bcrypt = require('bcrypt');
-
 const admins = require('../db/admins_db.json');
-const { getToken } = require('../utils/jwt');
+const { getToken, isAuthorized } = require('../utils/jwt');
 
-const saltRounds = 10;
-
-const authAdmin = (req, res) => {
+const login = (req, res) => {
   const {username, password} = req.body;
   const isAdmin = admins.some(item => (item.username === username) && (item.password === password));
   
-  console.log(username, password)
   if (!isAdmin) {
     res.status(401).send({
       status: 'error',
@@ -17,7 +12,6 @@ const authAdmin = (req, res) => {
     })
   } else {
     const admin = admins.find(el => (el.username === username) && (el.password === password));
-    console.log(admin)
     const token = getToken(admin.id)
     res.status(200).send({
       status: 'ok',
@@ -26,6 +20,24 @@ const authAdmin = (req, res) => {
   };
 };
 
+const auth = (req, res) => {
+  const {token} = req.body;
+  const adminData = isAuthorized(token);
+  const isAdmin = admins.some(item => item.id === adminData.id);
+
+  if(!isAdmin) {
+    res.status(404).send({
+      status: 'error',
+      message: 'Необходима авторизация'
+    })
+  } else {
+    res.status(200).send({
+      status: 'ok'
+    })
+  };
+};
+
 module.exports = {
-  authAdmin
+  login,
+  auth
 };

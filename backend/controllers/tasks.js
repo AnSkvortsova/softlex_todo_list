@@ -40,7 +40,8 @@ const editTask = (req, res) => {
         : task )
   
       res.status(200).send({
-        status: 'ok'
+        status: 'ok',
+        message: req.body,
       });
     };
   };

@@ -1,10 +1,11 @@
-import { React, useState, useEffect } from 'react';
+import { React, useState, useEffect, useCallback } from 'react';
 import { Buttons } from '../Buttons/Buttons';
 import { TasksList } from '../TasksList/TasksList';
 import { Pagination } from '../Pagination/Pagination';
 import { AddTaskPopup } from '../Popups/AddTaskPopup';
 import { LoginPopup } from '../Popups/LoginPopup';
 import { SortTaskPopup } from '../Popups/SortTaskPopup';
+import { EditTaskPopup } from '../Popups/EditTaskPopup';
 
 import { PAGE_SIZE } from '../../utils/constance';
 
@@ -13,14 +14,17 @@ import * as api from '../../utils/api';
 function App() {
   const [isTasksLoaded, setIsTasksLoadedState] = useState(false);
   const [isSorted, setIsSortedState] = useState(false);
+  const [isLoggedIn, setIsLoggedInState] = useState(false);
 
   const [isSortTaskPopupOpend, setIsSortTaskPopupOpendState] = useState(false);
   const [isAddTaskPopupOpend, setIsAddTaskPopupOpendState] = useState(false);
   const [isLoginPopupOpend, setIsLoginPopupOpendState] = useState(false);
+  const [isEditTaskPopupOpend, setIsEditTaskPopupOpendState] = useState(false);
   
   const [allTasks, setAllTasksState] = useState([]);
   const [tasksOnPage, setTasksOnPageState] = useState([]);
   const [sortedTasks, setSortedTasksState] = useState([]);
+  const [oldTask, setOldTaskState] = useState({});
 
   function handleSortTaskBtn() {
     setIsSortTaskPopupOpendState(true);
@@ -34,10 +38,16 @@ function App() {
     setIsLoginPopupOpendState(true);
   };
 
+  function handleEditTaskBtn(data) {
+    setOldTaskState(data)
+    setIsEditTaskPopupOpendState(true);
+  };
+
   function closePopup() {
     setIsSortTaskPopupOpendState(false);
     setIsAddTaskPopupOpendState(false);
     setIsLoginPopupOpendState(false);
+    setIsEditTaskPopupOpendState(false);
   };
 
   // обработчик Escape и overlay
@@ -91,6 +101,15 @@ function App() {
     setTasksOnPageState(copyAllTasks.splice(pageNumber * PAGE_SIZE - PAGE_SIZE, PAGE_SIZE));
   };
 
+  useEffect(() => {
+    if (sortedTasks.length === 0) {
+      const copyAllTasks = allTasks.slice();
+      return setTasksOnPageState(copyAllTasks.splice(0, PAGE_SIZE));
+    }
+    const copySortedTasks = sortedTasks.slice();
+    setTasksOnPageState(copySortedTasks.splice(0, PAGE_SIZE));
+  }, [allTasks, sortTasks.length, sortedTasks]);
+
   //добавить задачу
   function addNewTask(data) {
     api.addTask(data)
@@ -104,7 +123,7 @@ function App() {
 
   //сортировать задачи
   function sortTasks(username, email, status) {
-    setSortedTasksState(allTasks.filter(item => item.username === username || item.email === email || +item.status === +status));
+    setSortedTasksState(allTasks.filter(item => item.username === username || item.email === email || String(item.status) === String(status)));
     setIsSortedState(true);
   };
 
@@ -113,14 +132,53 @@ function App() {
     setIsSortedState(false);
   };
 
-  useEffect(() => {
-    if (sortedTasks.length === 0) {
-      const copyAllTasks = allTasks.slice();
-      return setTasksOnPageState(copyAllTasks.splice(0, PAGE_SIZE));
+  //логин
+  function login(username, password) {
+    api.login(username, password)
+    .then((res) => {
+      if (res.status === 'ok') {
+        setIsLoggedInState(true);
+        localStorage.setItem('token', res.token)
+      }
+    })
+    .catch((err) => console.log(err))
+  };
+
+  //проверка авторизации
+  const auth = useCallback(() => {
+    if (localStorage.token !== undefined) {
+      api.auth(localStorage.token)
+      .then((res) => {
+        if(res.status === 'ok') {
+          setIsLoggedInState(true);
+        }
+      })
+      .catch((err) => console.log(err))
     }
-    const copySortedTasks = sortedTasks.slice();
-    setTasksOnPageState(copySortedTasks.splice(0, PAGE_SIZE));
-  }, [allTasks, sortTasks.length, sortedTasks]);
+  }, []);
+
+  useEffect(() => {
+    auth();
+  });
+
+  // редактирование задачи
+  function editTask(data) {
+    api.editTask(data, localStorage.token)
+    .then((res) => {
+      if (res.status === 'ok') {
+        allTasks.map((item) => item.id === res.message.id
+          ? item = res.message
+          : item
+        );
+        sortedTasks.map((item) => item.id === res.message.id
+          ? item = res.message
+          : item
+        );
+      };
+    })
+    .catch((err) => console.log(err))
+  };
+
 
   return (
     <div className="app">
@@ -131,7 +189,9 @@ function App() {
       onSortTaskBtn={handleSortTaskBtn} />
 
       <TasksList 
-      tasks = {tasksOnPage} />
+      tasks = {tasksOnPage}
+      isLoggedIn = {isLoggedIn}
+      onEditBtn = {handleEditTaskBtn} />
 
       <Pagination
       totalTaskCount = {isSorted ? sortedTasks.length : allTasks.length}
@@ -144,12 +204,19 @@ function App() {
 
       <LoginPopup
       isPopupOpend = {isLoginPopupOpend}
+      login = {login}
       closePopup = {closePopup} />
 
       <SortTaskPopup
       isPopupOpend = {isSortTaskPopupOpend}
       sortTasks = {sortTasks}
       resetSorting = {resetSorting}
+      closePopup = {closePopup} />
+
+      <EditTaskPopup
+      isPopupOpend = {isEditTaskPopupOpend}
+      oldTask = {oldTask}
+      editTask = {editTask}
       closePopup = {closePopup} />
     </div>
   );
